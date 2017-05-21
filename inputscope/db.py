@@ -33,28 +33,28 @@ def fetchone(table, cols="*", where=(), group="", order=(), limit=(), **kwargs):
 
 def insert(table, values=(), **kwargs):
     """Convenience wrapper for database INSERT."""
-    values = dict(values, **kwargs).items()
+    values = list(dict(values, **kwargs).items())
     sql, args = makeSQL("INSERT", table, values=values)
     return execute(sql, args).lastrowid
 
 
 def select(table, cols="*", where=(), group="", order=(), limit=(), **kwargs):
     """Convenience wrapper for database SELECT."""
-    where = dict(where, **kwargs).items()
+    where = list(dict(where, **kwargs).items())
     sql, args = makeSQL("SELECT", table, cols, where, group, order, limit)
     return execute(sql, args)
 
 
 def update(table, values, where=(), **kwargs):
     """Convenience wrapper for database UPDATE."""
-    where = dict(where, **kwargs).items()
+    where = list(dict(where, **kwargs).items())
     sql, args = makeSQL("UPDATE", table, values=values, where=where)
     return execute(sql, args).rowcount
 
 
 def delete(table, where=(), **kwargs):
     """Convenience wrapper for database DELETE."""
-    where = dict(where, **kwargs).items()
+    where = list(dict(where, **kwargs).items())
     sql, args = makeSQL("DELETE", table, where=where)
     return execute(sql, args).rowcount
 
@@ -80,7 +80,7 @@ def make_cursor(path, init_statements=(), _connectioncache={}):
         connection = sqlite3.connect(path, isolation_level=None,
             check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES)
         for x in init_statements or (): connection.execute(x)
-        try: is_new and ":memory:" not in path.lower() and os.chmod(path, 0707)
+        try: is_new and ":memory:" not in path.lower() and os.chmod(path, 0o707)
         except OSError: pass
         connection.row_factory = lambda cur, row: dict(sqlite3.Row(cur, row))
         _connectioncache[path] = connection
@@ -89,10 +89,10 @@ def make_cursor(path, init_statements=(), _connectioncache={}):
 
 def makeSQL(action, table, cols="*", where=(), group="", order=(), limit=(), values=()):
     """Returns (SQL statement string, parameter dict)."""
-    cols  =    cols if isinstance(cols,  basestring) else ", ".join(cols)
-    group =   group if isinstance(group, basestring) else ", ".join(group)
-    order = [order] if isinstance(order, basestring) else order
-    limit = [limit] if isinstance(limit, (basestring, int)) else limit
+    cols  =    cols if isinstance(cols,  str) else ", ".join(cols)
+    group =   group if isinstance(group, str) else ", ".join(group)
+    order = [order] if isinstance(order, str) else order
+    limit = [limit] if isinstance(limit, (str, int)) else limit
     sql = "SELECT %s FROM %s" % (cols, table) if "SELECT" == action else ""
     sql = "DELETE FROM %s"    % (table)       if "DELETE" == action else sql
     sql = "INSERT INTO %s"    % (table)       if "INSERT" == action else sql

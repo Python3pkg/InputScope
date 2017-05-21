@@ -8,17 +8,17 @@ Mouse and keyboard listener, logs events to database.
 @created     06.04.2015
 @modified    19.05.2015
 """
-from __future__ import print_function
+
 import datetime
-import Queue
+import queue
 import sys
 import threading
 import time
 import pykeyboard
 import pymouse
 
-import conf
-import db
+from . import conf
+from . import db
 
 DEBUG = False
 
@@ -68,7 +68,7 @@ class DataHandler(threading.Thread):
         threading.Thread.__init__(self)
         self.counts = {} # {type: count}
         self.output = output
-        self.inqueue = Queue.Queue()
+        self.inqueue = queue.Queue()
         self.lasts = {"moves": None}
         self.running = False
         self.start()
@@ -147,7 +147,7 @@ class KeyHandler(pykeyboard.PyKeyboardEvent):
         HANDLERS = {"win32": self._handle_windows, "linux2": self._handle_linux,
                     "darwin": self._handle_mac}
         setattr(self, NAMES[sys.platform], HANDLERS[sys.platform])
-        self._modifiers = dict((x, False) for x in self.MODIFIERNAMES.values())
+        self._modifiers = dict((x, False) for x in list(self.MODIFIERNAMES.values()))
         self._realmodifiers = dict((x, False) for x in self.MODIFIERNAMES)
         self.start()
 
@@ -184,7 +184,7 @@ class KeyHandler(pykeyboard.PyKeyboardEvent):
             key = vkey
         else:
             is_altgr = event.Ascii in self.ALT_GRS
-            key = self._keyname(unichr(event.Ascii))
+            key = self._keyname(chr(event.Ascii))
 
         if DEBUG: print("Adding key %s (real %s)" % (key.encode("utf-8"), vkey.encode("utf-8")))
         self._output(type="keys", key=key, realkey=vkey)
@@ -194,8 +194,8 @@ class KeyHandler(pykeyboard.PyKeyboardEvent):
                                 if self._modifiers[k])
             if modifier and modifier != "Shift": # Shift-X is not a combo
                 if self._modifiers["Ctrl"] and event.Ascii:
-                    key = self._keyname(unichr(event.KeyID))
-                realmodifier = "-".join(k for k, v in self._realmodifiers.items() if v)
+                    key = self._keyname(chr(event.KeyID))
+                realmodifier = "-".join(k for k, v in list(self._realmodifiers.items()) if v)
                 realkey = "%s-%s" % (realmodifier, key)
                 key = "%s-%s" % (modifier, key)
                 if DEBUG: print("Adding combo %s (real %s)" % (key.encode("utf-8"), realkey.encode("utf-8")))
@@ -218,7 +218,7 @@ class KeyHandler(pykeyboard.PyKeyboardEvent):
 
     def _handle_mac(self, keycode):
         """Mac key event handler"""
-        key = self._keyname(unichr(keycode))
+        key = self._keyname(chr(keycode))
         self._output(type="keys", key=key, realkey=key)
 
     def _handle_linux(self, keycode, character, press):
@@ -234,7 +234,7 @@ class KeyHandler(pykeyboard.PyKeyboardEvent):
             modifier = "-".join(k for k in ["Ctrl", "Alt", "Shift", "Win"]
                                 if self._modifiers[k])
             if modifier and modifier != "Shift": # Shift-X is not a combo
-                realmodifier = "-".join(k for k, v in self._realmodifiers.items() if v)
+                realmodifier = "-".join(k for k, v in list(self._realmodifiers.items()) if v)
                 realkey = "%s-%s" % (realmodifier, key)
                 key = "%s-%s" % (modifier, key)
                 if DEBUG: print("Adding combo %s (real %s)" % (key.encode("utf-8"), realkey.encode("utf-8")))
@@ -252,7 +252,7 @@ class LineQueue(threading.Thread):
     def __init__(self, input):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.input, self.queue = input, Queue.Queue()
+        self.input, self.queue = input, queue.Queue()
         self.start()
 
     def run(self):

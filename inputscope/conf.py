@@ -23,9 +23,9 @@ the declared ones in source code. File is deleted if all values are at default.
 @modified    21.05.2015
 ------------------------------------------------------------------------------
 """
-try: import ConfigParser as configparser # Py2
+try: import configparser as configparser # Py2
 except ImportError: import configparser  # Py3
-try: import cStringIO as StringIO         # Py2
+try: import io as StringIO         # Py2
 except ImportError: import io as StringIO # Py3
 import datetime
 import json
@@ -276,7 +276,7 @@ def save(filename=ConfigPath):
     parser = configparser.RawConfigParser()
     parser.optionxform = str # Force case-sensitivity on names
     try:
-        save_types = basestring, int, float, tuple, list, dict, type(None)
+        save_types = str, int, float, tuple, list, dict, type(None)
         for k, v in sorted(globals().items()):
             if not isinstance(v, save_types) or k.startswith("_") \
             or default_values.get(k, parser) == v: continue # for k, v
@@ -297,8 +297,8 @@ def save(filename=ConfigPath):
 def defaults(values={}):
     """Returns a once-assembled dict of this module's storable attributes."""
     if values: return values
-    save_types = basestring, int, float, tuple, list, dict, type(None)
-    for k, v in globals().items():
+    save_types = str, int, float, tuple, list, dict, type(None)
+    for k, v in list(globals().items()):
         if isinstance(v, save_types) and not k.startswith("_"): values[k] = v
     return values
 

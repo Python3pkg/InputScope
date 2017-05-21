@@ -16,8 +16,8 @@ import sys
 import bottle
 from bottle import hook, request, route
 
-import conf
-import db
+from . import conf
+from . import db
 
 app = None   # Bottle application instance
 
@@ -169,7 +169,7 @@ def stats_mouse(events, table):
         e["x"], e["y"] = tuple(min(int(e[k] / SC[k]), HS["y" == k]) for k in "xy")
         xymap[(e["x"], e["y"])] += 1
 
-    stats, positions = [], [dict(x=x, y=y, count=v) for (x, y), v in xymap.items()]
+    stats, positions = [], [dict(x=x, y=y, count=v) for (x, y), v in list(xymap.items())]
     if "moves" == table:
         px = re.sub(r"(\d)(?=(\d{3})+(?!\d))", r"\1,", "%d" % math.ceil(distance))
         seconds = timedelta_seconds(events[-1]["dt"] - events[0]["dt"])

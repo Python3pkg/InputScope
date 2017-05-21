@@ -21,13 +21,13 @@ tk = None
 try: import wx, wx.lib.sized_controls, wx.py.shell
 except ImportError:
     wx = None
-    try: import Tkinter as tk   # For getting screen size if wx unavailable
+    try: import tkinter as tk   # For getting screen size if wx unavailable
     except ImportError: pass
 
-import conf
-import db
-import listener
-import webui
+from . import conf
+from . import db
+from . import listener
+from . import webui
 
 class Popen(multiprocessing.forking.Popen):
     """Support for PyInstaller-frozen Windows executables."""
@@ -252,7 +252,7 @@ def main():
             size = widget.winfo_screenwidth(), widget.winfo_screenheight()
             model.log_resolution(size)
         print("wxPython not available, using basic command line interface.")
-        print("Web interface running at %s" % conf.WebUrl)
+        print(("Web interface running at %s" % conf.WebUrl))
         try:
             model.run()
         except KeyboardInterrupt:
