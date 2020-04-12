@@ -16,8 +16,8 @@ from inputscope import conf
 setuptools.setup(
     name=conf.Title,
     version=conf.Version,
-    description="Mouse and keyboard input heatmap visualizer and statistics",
-    url="https://github.com/suurjaak/InputScope",
+    description="Mouse and keyboard input heatmap visualizer and statistics, ported to Python 3",
+    url="https://github.com/Python3pkg/InputScope",
 
     author="Erki Suurjaak",
     author_email="erki@lap.ee",
@@ -42,9 +42,8 @@ setuptools.setup(
         "Topic :: System :: Monitoring",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 
     long_description=
